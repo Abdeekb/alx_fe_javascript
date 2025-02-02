@@ -101,21 +101,25 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     };
 
-    // Function to create category filter
-    function createCategoryFilter() {
-        const categoryFilter = document.createElement('select');
-        categoryFilter.id = 'categoryFilter';
-        categoryFilter.innerHTML = `<option value="all">All Categories</option>`;
-        
+    // Function to populate categories dynamically
+    function populateCategories() {
         const categories = Array.from(new Set(quotes.map(quote => quote.category)));
-        
+        const categoryFilter = document.getElementById('categoryFilter');
+
         categories.forEach(category => {
             const option = document.createElement('option');
             option.value = category;
             option.textContent = category;
             categoryFilter.appendChild(option);
         });
+    }
 
+    // Function to create category filter
+    function createCategoryFilter() {
+        const categoryFilter = document.createElement('select');
+        categoryFilter.id = 'categoryFilter';
+        categoryFilter.innerHTML = `<option value="all">All Categories</option>`;
+        
         categoryFilter.addEventListener('change', function() {
             const selectedCategory = categoryFilter.value;
             localStorage.setItem('selectedCategory', selectedCategory); // Save selected category
@@ -123,21 +127,14 @@ document.addEventListener('DOMContentLoaded', function() {
         });
 
         document.body.appendChild(categoryFilter);
+        populateCategories();  // Populate categories when filter is created
     }
 
     // Function to update the category filter with the latest categories
     function updateCategoryFilter() {
         const categoryFilter = document.getElementById('categoryFilter');
-        const categories = Array.from(new Set(quotes.map(quote => quote.category)));
-
         categoryFilter.innerHTML = '<option value="all">All Categories</option>';
-        
-        categories.forEach(category => {
-            const option = document.createElement('option');
-            option.value = category;
-            option.textContent = category;
-            categoryFilter.appendChild(option);
-        });
+        populateCategories();  // Update the categories dynamically
     }
 
     // Function to export quotes to a JSON file
@@ -189,4 +186,3 @@ document.addEventListener('DOMContentLoaded', function() {
     // Show initial quote
     showRandomQuote();
 });
-ر
