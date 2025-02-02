@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     // Function to load quotes from localStorage
     function loadQuotesFromStorage() {
         const storedQuotes = localStorage.getItem('quotes');
@@ -41,21 +41,21 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         const randomIndex = Math.floor(Math.random() * quotes.length);
         const quote = quotes[randomIndex];
-        
+
         // Save last viewed quote in sessionStorage
         saveLastViewedQuoteToSessionStorage(quote);
 
         // Clear previous content
         quoteDisplay.innerHTML = '';
-        
+
         // Create and append quote text
         const quoteText = document.createElement('p');
         quoteText.textContent = quote.text;
-        
+
         // Create and append category
         const quoteCategory = document.createElement('small');
         quoteCategory.textContent = `Category: ${quote.category}`;
-        
+
         quoteDisplay.appendChild(quoteText);
         quoteDisplay.appendChild(quoteCategory);
     }
@@ -72,15 +72,15 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Function to add new quote
-    window.addQuote = function() {
+    window.addQuote = function () {
         const textInput = document.getElementById('newQuoteText');
         const categoryInput = document.getElementById('newQuoteCategory');
-        
+
         const newQuote = {
             text: textInput.value.trim(),
             category: categoryInput.value.trim()
         };
-        
+
         if (newQuote.text && newQuote.category) {
             quotes.push(newQuote);
             saveQuotesToStorage();  // Save updated quotes to localStorage
@@ -110,10 +110,10 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Function to filter quotes based on selected category
-    window.filterQuotes = function() {
+    window.filterQuotes = function () {
         const selectedCategory = document.getElementById('categoryFilter').value;
         const filteredQuotes = selectedCategory === 'all' ? quotes : quotes.filter(quote => quote.category === selectedCategory);
-        
+
         // Show the filtered quotes
         const quoteDisplay = document.getElementById('quoteDisplay');
         quoteDisplay.innerHTML = ''; // Clear current display
@@ -145,49 +145,40 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Function to sync quotes with the server (fetching and posting data)
-    async function syncQuotesWithServer() {
-        // Simulate fetching quotes from the server
-        const serverResponse = await fetch('https://jsonplaceholder.typicode.com/posts', {
-            method: 'GET', // This is used to simulate fetching data
-            headers: {
-                'Content-Type': 'application/json',
+    // Function to simulate fetching quotes from a server (mocked)
+    async function fetchQuotesFromServer() {
+        const response = await fetch('https://jsonplaceholder.typicode.com/posts'); // Use mock API for server interaction
+        const data = await response.json();
+
+        // Simulate merging data from the server into local storage
+        const newQuotes = data.map(post => ({
+            text: post.body,
+            category: 'General'  // Assuming a default category for this simulation
+        }));
+
+        // Simulate conflict resolution by checking if quotes already exist in the local storage
+        newQuotes.forEach(newQuote => {
+            const exists = quotes.some(quote => quote.text === newQuote.text);
+            if (!exists) {
+                quotes.push(newQuote);  // Add only if not already present
             }
         });
-        const serverQuotes = await serverResponse.json(); // Assuming the server returns quotes
 
-        // Simulate syncing data with the local storage
-        if (serverQuotes.length > 0) {
-            // Assuming the server's data takes precedence in case of conflicts
-            quotes = serverQuotes; // Update quotes from the server
-            saveQuotesToStorage(); // Save the updated quotes to localStorage
-            alert('Data has been synced with the server!');
-        }
-
-        // Post new data to the server
-        const newQuote = {
-            text: "New Quote Example",
-            category: "Example Category"
-        };
-        
-        // Sending new quote to the server (Simulating POST)
-        const postResponse = await fetch('https://jsonplaceholder.typicode.com/posts', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json', // Tell the server that we are sending JSON
-            },
-            body: JSON.stringify(newQuote), // Send the new quote as JSON
-        });
-
-        const postData = await postResponse.json();
-        console.log('Post Response:', postData);
-
-        // Handle any potential conflicts (simple conflict resolution)
-        console.log('Conflict Resolution - Sync Complete');
+        // Save the updated quotes to localStorage
+        saveQuotesToStorage();
+        showUpdatedMessage();
     }
 
-    // Periodically sync with the server every 5 minutes
-    setInterval(syncQuotesWithServer, 5 * 60 * 1000);  // 5 minutes in milliseconds
+    // Periodically fetch data from the server
+    setInterval(fetchQuotesFromServer, 30000);  // Fetch quotes every 30 seconds
+
+    // Show a message when quotes are updated
+    function showUpdatedMessage() {
+        const quoteDisplay = document.getElementById('quoteDisplay');
+        const message = document.createElement('p');
+        message.textContent = 'Quotes have been updated from the server.';
+        quoteDisplay.appendChild(message);
+    }
 
     // Call functions to populate categories and load last selected category
     populateCategories();
@@ -207,7 +198,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const exportButton = document.createElement('button');
         exportButton.textContent = 'Export Quotes to JSON';
         exportButton.onclick = exportQuotesToJson;
-        
+
         const importButton = document.createElement('input');
         importButton.type = 'file';
         importButton.accept = '.json';
