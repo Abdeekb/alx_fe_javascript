@@ -35,12 +35,20 @@ document.addEventListener('DOMContentLoaded', function() {
     // Function to show random quote
     function showRandomQuote() {
         const quoteDisplay = document.getElementById('quoteDisplay');
-        if (quotes.length === 0) {
+        const selectedCategory = localStorage.getItem('selectedCategory') || 'all';
+        
+        // Filter quotes based on selected category
+        const filteredQuotes = quotes.filter(quote => 
+            selectedCategory === 'all' || quote.category === selectedCategory
+        );
+
+        if (filteredQuotes.length === 0) {
             quoteDisplay.textContent = "No quotes available";
             return;
         }
-        const randomIndex = Math.floor(Math.random() * quotes.length);
-        const quote = quotes[randomIndex];
+
+        const randomIndex = Math.floor(Math.random() * filteredQuotes.length);
+        const quote = filteredQuotes[randomIndex];
         
         // Save last viewed quote in sessionStorage
         saveLastViewedQuoteToSessionStorage(quote);
@@ -84,6 +92,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (newQuote.text && newQuote.category) {
             quotes.push(newQuote);
             saveQuotesToStorage();  // Save updated quotes to localStorage
+            updateCategoryFilter();  // Update category filter
             textInput.value = '';
             categoryInput.value = '';
             alert('Quote added successfully!');
@@ -92,14 +101,44 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     };
 
-    // Add event listener for new quote button
-    document.getElementById('newQuote').addEventListener('click', showRandomQuote);
+    // Function to create category filter
+    function createCategoryFilter() {
+        const categoryFilter = document.createElement('select');
+        categoryFilter.id = 'categoryFilter';
+        categoryFilter.innerHTML = `<option value="all">All Categories</option>`;
+        
+        const categories = Array.from(new Set(quotes.map(quote => quote.category)));
+        
+        categories.forEach(category => {
+            const option = document.createElement('option');
+            option.value = category;
+            option.textContent = category;
+            categoryFilter.appendChild(option);
+        });
 
-    // Create the add quote form when page loads
-    createAddQuoteForm();
+        categoryFilter.addEventListener('change', function() {
+            const selectedCategory = categoryFilter.value;
+            localStorage.setItem('selectedCategory', selectedCategory); // Save selected category
+            showRandomQuote(); // Update the displayed quote based on selected category
+        });
 
-    // Show initial quote
-    showRandomQuote();
+        document.body.appendChild(categoryFilter);
+    }
+
+    // Function to update the category filter with the latest categories
+    function updateCategoryFilter() {
+        const categoryFilter = document.getElementById('categoryFilter');
+        const categories = Array.from(new Set(quotes.map(quote => quote.category)));
+
+        categoryFilter.innerHTML = '<option value="all">All Categories</option>';
+        
+        categories.forEach(category => {
+            const option = document.createElement('option');
+            option.value = category;
+            option.textContent = category;
+            categoryFilter.appendChild(option);
+        });
+    }
 
     // Function to export quotes to a JSON file
     function exportQuotesToJson() {
@@ -121,6 +160,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const importedQuotes = JSON.parse(event.target.result);
             quotes.push(...importedQuotes);
             saveQuotesToStorage();  // Save updated quotes to localStorage
+            updateCategoryFilter();  // Update category filter
             alert('Quotes imported successfully!');
         };
         fileReader.readAsText(event.target.files[0]);
@@ -141,6 +181,12 @@ document.addEventListener('DOMContentLoaded', function() {
         document.body.appendChild(importButton);
     }
 
-    // Call the function to create the buttons
+    // Create category filter, add quote form, and export/import buttons
+    createCategoryFilter();
+    createAddQuoteForm();
     createExportImportButtons();
+
+    // Show initial quote
+    showRandomQuote();
 });
+ر
