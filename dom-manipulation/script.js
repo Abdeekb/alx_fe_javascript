@@ -63,7 +63,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Function to create add quote form
     function createAddQuoteForm() {
         const form = document.createElement('div');
-        form.innerHTML = `
+        form.innerHTML = ` 
             <input id="newQuoteText" type="text" placeholder="Enter a new quote" />
             <input id="newQuoteCategory" type="text" placeholder="Enter quote category" />
             <button onclick="addQuote()">Add Quote</button>
@@ -166,7 +166,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Save the updated quotes to localStorage
         saveQuotesToStorage();
-        showUpdatedMessage(); // Notify the user that the quotes have been updated
     }
 
     // Periodically fetch data from the server
@@ -180,11 +179,19 @@ document.addEventListener('DOMContentLoaded', function() {
         quoteDisplay.appendChild(message);
     }
 
-    // Sync quotes with the server
+    // Function to sync data with server
     window.syncQuotes = async function() {
-        await fetchQuotesFromServer(); // Fetch quotes and update local storage
-        alert('Quotes synced with the server!');
-    };
+        const response = await fetch('https://jsonplaceholder.typicode.com/posts', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(quotes),
+        });
+
+        const result = await response.json();
+        console.log('Data synced with server', result);
+    }
 
     // Call functions to populate categories and load last selected category
     populateCategories();
