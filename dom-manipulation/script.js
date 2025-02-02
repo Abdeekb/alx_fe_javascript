@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', function () {
+document.addEventListener('DOMContentLoaded', function() {
     // Function to load quotes from localStorage
     function loadQuotesFromStorage() {
         const storedQuotes = localStorage.getItem('quotes');
@@ -41,21 +41,21 @@ document.addEventListener('DOMContentLoaded', function () {
         }
         const randomIndex = Math.floor(Math.random() * quotes.length);
         const quote = quotes[randomIndex];
-
+        
         // Save last viewed quote in sessionStorage
         saveLastViewedQuoteToSessionStorage(quote);
 
         // Clear previous content
         quoteDisplay.innerHTML = '';
-
+        
         // Create and append quote text
         const quoteText = document.createElement('p');
         quoteText.textContent = quote.text;
-
+        
         // Create and append category
         const quoteCategory = document.createElement('small');
         quoteCategory.textContent = `Category: ${quote.category}`;
-
+        
         quoteDisplay.appendChild(quoteText);
         quoteDisplay.appendChild(quoteCategory);
     }
@@ -63,7 +63,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // Function to create add quote form
     function createAddQuoteForm() {
         const form = document.createElement('div');
-        form.innerHTML = `
+        form.innerHTML = ` 
             <input id="newQuoteText" type="text" placeholder="Enter a new quote" />
             <input id="newQuoteCategory" type="text" placeholder="Enter quote category" />
             <button onclick="addQuote()">Add Quote</button>
@@ -72,15 +72,15 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // Function to add new quote
-    window.addQuote = function () {
+    window.addQuote = function() {
         const textInput = document.getElementById('newQuoteText');
         const categoryInput = document.getElementById('newQuoteCategory');
-
+        
         const newQuote = {
             text: textInput.value.trim(),
             category: categoryInput.value.trim()
         };
-
+        
         if (newQuote.text && newQuote.category) {
             quotes.push(newQuote);
             saveQuotesToStorage();  // Save updated quotes to localStorage
@@ -110,10 +110,10 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // Function to filter quotes based on selected category
-    window.filterQuotes = function () {
+    window.filterQuotes = function() {
         const selectedCategory = document.getElementById('categoryFilter').value;
         const filteredQuotes = selectedCategory === 'all' ? quotes : quotes.filter(quote => quote.category === selectedCategory);
-
+        
         // Show the filtered quotes
         const quoteDisplay = document.getElementById('quoteDisplay');
         quoteDisplay.innerHTML = ''; // Clear current display
@@ -149,7 +149,7 @@ document.addEventListener('DOMContentLoaded', function () {
     async function fetchQuotesFromServer() {
         const response = await fetch('https://jsonplaceholder.typicode.com/posts'); // Use mock API for server interaction
         const data = await response.json();
-
+        
         // Simulate merging data from the server into local storage
         const newQuotes = data.map(post => ({
             text: post.body,
@@ -166,7 +166,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
         // Save the updated quotes to localStorage
         saveQuotesToStorage();
-        showUpdatedMessage();
     }
 
     // Periodically fetch data from the server
@@ -178,6 +177,20 @@ document.addEventListener('DOMContentLoaded', function () {
         const message = document.createElement('p');
         message.textContent = 'Quotes have been updated from the server.';
         quoteDisplay.appendChild(message);
+    }
+
+    // Function to sync data with server
+    async function syncWithServer() {
+        const response = await fetch('https://jsonplaceholder.typicode.com/posts', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(quotes),
+        });
+
+        const result = await response.json();
+        console.log('Data synced with server', result);
     }
 
     // Call functions to populate categories and load last selected category
@@ -198,7 +211,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const exportButton = document.createElement('button');
         exportButton.textContent = 'Export Quotes to JSON';
         exportButton.onclick = exportQuotesToJson;
-
+        
         const importButton = document.createElement('input');
         importButton.type = 'file';
         importButton.accept = '.json';
